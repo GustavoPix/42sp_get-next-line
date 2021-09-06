@@ -6,7 +6,7 @@
 /*   By: glima-de <glima-de@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/05 12:35:40 by glima-de          #+#    #+#             */
-/*   Updated: 2021/09/05 17:07:56 by glima-de         ###   ########.fr       */
+/*   Updated: 2021/09/06 20:16:44 by glima-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,17 +30,12 @@ static char	*read_next_char(size_t sbuf, int fd)
 			sbuf--;
 		if (sbuf == 0)
 			return (NULL);
-		buf = malloc((sbuf + 1) + sizeof(char));
-		if (!buf)
-			return (NULL);
-		buf[sbuf] = '\0';
+		buf = ft_calloc((sbuf + 1), sizeof(char));
 	}
 	else
-	{
 		buf = read_next_char(sbuf + 1, fd);
-		if (!buf)
-			return (NULL);
-	}
+	if (!buf)
+		return (NULL);
 	if (sr > 0)
 		buf[sbuf - 1] = r[0];
 	return (buf);
