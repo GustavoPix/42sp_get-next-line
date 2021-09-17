@@ -6,7 +6,7 @@
 /*   By: glima-de <glima-de@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/05 12:35:40 by glima-de          #+#    #+#             */
-/*   Updated: 2021/09/06 20:16:44 by glima-de         ###   ########.fr       */
+/*   Updated: 2021/09/16 20:56:11 by glima-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,54 +15,97 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static char	*read_next_char(size_t sbuf, int fd)
+static char	*readFile(int *sr, int fd)
 {
-	char	r[1];
-	char	*buf;
-	int		sr;
+	char	r[BUFFER_SIZE];
+	char	*aux;
 
-	sr = read(fd, r, 1);
-	if (sr < 0)
+	if (BUFFER_SIZE <= 0)
 		return (NULL);
-	if (sr == 0 || r[0] == '\n')
+	*sr = read(fd, r, BUFFER_SIZE);
+	r[*sr] = '\0';
+	if (*sr <= 0)
+		return (NULL);
+	aux = ft_calloc(sizeof(char), *sr + 1);
+	if (!aux)
+		return (NULL);
+	ft_strlcpy(aux, r, *sr + 1);
+	return (aux);
+}
+
+static int	findReturnChar(char *str)
+{
+	int	i;
+
+	i = 0;
+	while (str[i])
 	{
-		if (sr == 0)
-			sbuf--;
-		if (sbuf == 0)
-			return (NULL);
-		buf = ft_calloc((sbuf + 1), sizeof(char));
+		if (str[i] == '\n')
+			return (i);
+		i++;
 	}
-	else
-		buf = read_next_char(sbuf + 1, fd);
-	if (!buf)
-		return (NULL);
-	if (sr > 0)
-		buf[sbuf - 1] = r[0];
-	return (buf);
+	return (-1);
 }
 
 char	*get_next_line(int fd)
 {
-	static int	lastfd = 0;
-	static int	end = 0;
-	char		*aux;
+	static char	*lastRead;
+	char		*auxR;
+	char		*auxSwap;
+	int			nPos;
 
-	if (lastfd == fd)
+	nPos = 0;
+	if (lastRead)
 	{
-		if (end)
+		nPos = findReturnChar(lastRead);
+		if (nPos >= 0)
+		{
+			auxR = ft_calloc(sizeof(char), nPos + 2);
+			//printf("auxR -> |%s|\nlastRead -> |%s|\nnPos -> |%d|",auxR, lastRead, nPos);
+			ft_strlcpy(auxR, lastRead, nPos + 2);
+
+			if (ft_strlen(&lastRead[nPos + 1]))
+				auxSwap = ft_calloc(sizeof(char), ft_strlen(&lastRead[nPos + 1]) + 1);
+			else
+			{
+				free(lastRead);
+				lastRead = NULL;
+				return (auxR);
+			}
+			if (!auxR || !auxSwap)
+				return (NULL);
+			//printf("|c|");
+			ft_strlcpy(auxSwap, &lastRead[nPos + 1], ft_strlen(&lastRead[nPos]));
+			free(lastRead);
+			lastRead = auxSwap;
+			//free(auxSwap);
+			auxSwap = NULL;
+			return (auxR);
+		}
+		else
+		{
+			auxR = readFile(&nPos,fd);
+			auxSwap = lastRead;
+			if (nPos <= 0)
+			{
+				//free(auxR);
+				lastRead = NULL;
+				return(auxSwap);
+			}
+			//printf("|%s| |%d|\n",auxSwap, nPos);
+			lastRead = ft_strjoin(lastRead, auxR);
+			free(auxSwap);
+			free(auxR);
+			if (!lastRead)
+				return (NULL);
+			return (get_next_line(fd));
+		}
+	}
+	else
+	{
+		lastRead = readFile(&nPos,fd);
+		if (!lastRead)
 			return (NULL);
-	}
-	else
-	{
-		lastfd = fd;
-		end = 0;
-	}
-	aux = read_next_char(1, fd);
-	if (aux)
-		return (aux);
-	else
-	{
-		end = 1;
-		return (NULL);
+		return (get_next_line(fd));
 	}
 }

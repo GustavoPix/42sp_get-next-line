@@ -6,3 +6,6 @@ readme
 gnl-test/*
 *.out
 gnl-test/
+test.txt
+old.c
+.*
