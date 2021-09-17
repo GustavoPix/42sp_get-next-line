@@ -6,7 +6,7 @@
 /*   By: glima-de <glima-de@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/05 12:35:40 by glima-de          #+#    #+#             */
-/*   Updated: 2021/09/17 18:43:14 by glima-de         ###   ########.fr       */
+/*   Updated: 2021/09/17 19:12:21 by glima-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,20 @@ static int	findReturnChar(char *str)
 	return (-1);
 }
 
+static char	*split(char *left, char *right, int nPos)
+{
+	char		*auxSwap;
+
+	ft_strlcpy(left, right, nPos + 2);
+	if (ft_strlen(&right[nPos + 1]))
+		auxSwap = ft_calloc(sizeof(char), ft_strlen(&right[nPos + 1]) + 1);
+	else
+		return (NULL);
+	if (!left || !auxSwap)
+		return (NULL);
+	ft_strlcpy(auxSwap, &right[nPos + 1], ft_strlen(&right[nPos]));
+	return (auxSwap);
+}
 
 char	*get_next_line(int fd)
 {
@@ -71,21 +85,9 @@ char	*get_next_line(int fd)
 		if (nPos >= 0)
 		{
 			auxR = ft_calloc(sizeof(char), nPos + 2);
-			ft_strlcpy(auxR, lastRead, nPos + 2);
-			if (ft_strlen(&lastRead[nPos + 1]))
-				auxSwap = ft_calloc(sizeof(char), ft_strlen(&lastRead[nPos + 1]) + 1);
-			else
-			{
-				free(lastRead);
-				lastRead = NULL;
-				return (auxR);
-			}
-			if (!auxR || !auxSwap)
-				return (NULL);
-			ft_strlcpy(auxSwap, &lastRead[nPos + 1], ft_strlen(&lastRead[nPos]));
-			free(lastRead);
-			lastRead = auxSwap;
-			auxSwap = NULL;
+			auxSwap = lastRead;
+			lastRead = split(auxR, auxSwap, nPos);
+			free(auxSwap);
 			return (auxR);
 		}
 		else
