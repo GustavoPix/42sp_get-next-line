@@ -6,7 +6,7 @@
 /*   By: glima-de <glima-de@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/05 12:35:40 by glima-de          #+#    #+#             */
-/*   Updated: 2021/09/17 19:12:21 by glima-de         ###   ########.fr       */
+/*   Updated: 2021/09/18 10:26:41 by glima-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,29 +15,32 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static char	*readFile(int *sr, int fd)
+static int	readFile(char **lastRead, int fd)
 {
 	char	*r;
+	int		sr;
 	char	*aux;
 
 	r = calloc(sizeof(char), BUFFER_SIZE + 1);
 	if (!r)
-	{
-		*sr = -1;
-		return (NULL);
-	}
-	*sr = read(fd, (void *)r, BUFFER_SIZE);
-	if (*sr <= 0)
+		return (-1);
+	sr = read(fd, (void *)r, BUFFER_SIZE);
+	if (sr <= 0)
 	{
 		free(r);
-		return (NULL);
+		return (sr);
 	}
-	aux = ft_calloc(sizeof(char), *sr + 1);
-	if (!aux)
-		return (NULL);
-	ft_strlcpy(aux, r, *sr + 1);
+	if (!*lastRead)
+	{
+		*lastRead = ft_calloc(sizeof(char), sr + 1);
+		if (!*lastRead)
+			return (-1);
+	}
+	aux = *lastRead;
+	*lastRead = ft_strjoin(*lastRead, r);
+	free(aux);
 	free(r);
-	return (aux);
+	return (sr);
 }
 
 static int	findReturnChar(char *str)
@@ -45,6 +48,8 @@ static int	findReturnChar(char *str)
 	int	i;
 
 	i = 0;
+	if (!str)
+		return (0);
 	while (str[i])
 	{
 		if (str[i] == '\n')
@@ -54,7 +59,7 @@ static int	findReturnChar(char *str)
 	return (-1);
 }
 
-static char	*split(char *left, char *right, int nPos)
+static char	*my_split(char *left, char *right, int nPos)
 {
 	char		*auxSwap;
 
@@ -78,40 +83,25 @@ char	*get_next_line(int fd)
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	nPos = 0;
+	nPos = findReturnChar(lastRead);
 	if (lastRead)
 	{
-		nPos = findReturnChar(lastRead);
+		auxSwap = lastRead;
 		if (nPos >= 0)
 		{
 			auxR = ft_calloc(sizeof(char), nPos + 2);
-			auxSwap = lastRead;
-			lastRead = split(auxR, auxSwap, nPos);
+			lastRead = my_split(auxR, lastRead, nPos);
 			free(auxSwap);
 			return (auxR);
 		}
-		else
+		if (readFile(&lastRead, fd) <= 0)
 		{
-			auxR = readFile(&nPos, fd);
-			auxSwap = lastRead;
-			if (nPos <= 0)
-			{
-				lastRead = NULL;
-				return (auxSwap);
-			}
-			lastRead = ft_strjoin(lastRead, auxR);
-			free(auxSwap);
-			free(auxR);
-			if (!lastRead)
-				return (NULL);
-			return (get_next_line(fd));
+			lastRead = NULL;
+			return (auxSwap);
 		}
-	}
-	else
-	{
-		lastRead = readFile(&nPos, fd);
-		if (!lastRead)
-			return (NULL);
 		return (get_next_line(fd));
 	}
+	if (readFile(&lastRead, fd) <= 0)
+		return (NULL);
+	return (get_next_line(fd));
 }

@@ -6,7 +6,7 @@
 /*   By: glima-de <glima-de@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/05 12:26:37 by glima-de          #+#    #+#             */
-/*   Updated: 2021/09/15 19:45:14 by glima-de         ###   ########.fr       */
+/*   Updated: 2021/09/18 10:31:10 by glima-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,5 +19,6 @@ unsigned int	ft_strlen(const char *str);
 void			*ft_calloc(size_t nmemb, size_t size);
 size_t			ft_strlcpy(char *dst, const char *src, size_t size);
 char			*ft_strjoin(char const *s1, char const *s2);
+char			*ft_strcopy(const char *s);
 
 #endif
