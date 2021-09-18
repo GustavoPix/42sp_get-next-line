@@ -11,9 +11,6 @@
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
 
 void	*ft_calloc(size_t nmemb, size_t size)
 {
@@ -84,24 +81,5 @@ char	*ft_strjoin(char const *s1, char const *s2)
 		ia++;
 	}
 	aux[ia] = '\0';
-	return (aux);
-}
-
-char	*ft_strcopy(const char *s)
-{
-	char	*aux;
-	size_t	i;
-
-	i = 0;
-	while (s[i])
-		i++;
-	aux = malloc((i + 1) * sizeof(char));
-	i = 0;
-	while (s[i])
-	{
-		aux[i] = s[i];
-		i++;
-	}
-	aux[i] = '\0';
 	return (aux);
 }
