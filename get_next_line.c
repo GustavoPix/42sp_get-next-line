@@ -6,13 +6,13 @@
 /*   By: glima-de <glima-de@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/05 12:35:40 by glima-de          #+#    #+#             */
-/*   Updated: 2021/09/18 11:07:40 by glima-de         ###   ########.fr       */
+/*   Updated: 2021/11/18 20:39:22 by glima-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static int	gnl_readFile(char **lastRead, int fd)
+static int	read_file(char **lastRead, int fd)
 {
 	char	*r;
 	int		sr;
@@ -40,7 +40,7 @@ static int	gnl_readFile(char **lastRead, int fd)
 	return (sr);
 }
 
-static int	gnl_findReturnChar(char *str)
+static int	find_return_char(char *str)
 {
 	int	i;
 
@@ -58,44 +58,44 @@ static int	gnl_findReturnChar(char *str)
 
 static char	*gnl_split(char *left, char *right, int nPos)
 {
-	char		*auxSwap;
+	char		*aux_swap;
 
 	ft_strlcpy(left, right, nPos + 2);
 	if (ft_strlen(&right[nPos + 1]))
-		auxSwap = ft_calloc(sizeof(char), ft_strlen(&right[nPos + 1]) + 1);
+		aux_swap = ft_calloc(sizeof(char), ft_strlen(&right[nPos + 1]) + 1);
 	else
 		return (NULL);
-	if (!left || !auxSwap)
+	if (!left || !aux_swap)
 		return (NULL);
-	ft_strlcpy(auxSwap, &right[nPos + 1], ft_strlen(&right[nPos]));
-	return (auxSwap);
+	ft_strlcpy(aux_swap, &right[nPos + 1], ft_strlen(&right[nPos]));
+	return (aux_swap);
 }
 
 char	*get_next_line(int fd)
 {
-	static char	*lastRead;
-	char		*auxR;
-	char		*auxSwap;
+	static char	*lread;
+	char		*aux_read;
+	char		*aux_swap;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	if (lastRead)
+	if (lread)
 	{
-		auxSwap = lastRead;
-		if (gnl_findReturnChar(lastRead) >= 0)
+		aux_swap = lread;
+		if (find_return_char(lread) >= 0)
 		{
-			auxR = ft_calloc(sizeof(char), gnl_findReturnChar(lastRead) + 2);
-			lastRead = gnl_split(auxR, lastRead, gnl_findReturnChar(lastRead));
-			free(auxSwap);
-			return (auxR);
+			aux_read = ft_calloc(sizeof(char), find_return_char(lread) + 2);
+			lread = gnl_split(aux_read, lread, find_return_char(lread));
+			free(aux_swap);
+			return (aux_read);
 		}
-		if (gnl_readFile(&lastRead, fd) <= 0)
+		if (read_file(&lread, fd) <= 0)
 		{
-			lastRead = NULL;
-			return (auxSwap);
+			lread = NULL;
+			return (aux_swap);
 		}
 	}
-	else if (gnl_readFile(&lastRead, fd) <= 0)
+	else if (read_file(&lread, fd) <= 0)
 		return (NULL);
 	return (get_next_line(fd));
 }
